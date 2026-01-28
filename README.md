@@ -1,59 +1,45 @@
-# OTP Sender
+# OTPKEYS - Zero-Knowledge MFA Protocol
 
-A secure, high-performance OTP generation and validation service built with Bun, Elysia, and SQLite.
+A secure, high-performance Zero-Knowledge MFA server for **MOLTBOT** instances. Designed to allow AI Agents to perform critical tasks securely without ever seeing the sensitive OTP codes.
 
-## Features
-- **High Performance**: Built on Bun runtime.
-- **Security**: OTPs are hashed (Argon2id) before storage. Plain text is never stored.
-- **Type Safety**: End-to-end strict TypeScript.
-- **Architecture**: SOLID principles with Repository and Service layers.
+## 🔐 The "Blind Pipe" Architecture
 
-## Tech Stack
-- **Runtime**: Bun
-- **Framework**: ElysiaJS
-- **Database**: SQLite (via `bun:sqlite`)
-- **ORM**: Drizzle ORM
-- **Styling**: TailwindCSS (configured for future UI usage)
+The core of **OTPKEYS** is the **Blind Pipe** architecture, which ensures that secrets never touch the AI Agent's chat context or logs:
 
-## Quick Start
+1.  **Request**: AI Agent triggers `blind_send.sh`.
+2.  **Generate**: Server creates an OTP and returns it only to the script.
+3.  **Transmission**: The script pipes the OTP directly to a private email mailer.
+4.  **Isolation**: The OTP is never printed to stdout/stderr in the agent's context.
+5.  **Validation**: User provides the OTP from their email to the agent, who validates it via `validate_otp.sh`.
 
-1. Install dependencies:
-   ```bash
-   bun install
-   ```
+## 🚀 Quick Start (Docker)
 
-2. Setup Database:
-   ```bash
-   bun drizzle-kit push
-   ```
+The fastest way to deploy the OTPKEYS server:
 
-3. Setup Database:
-   ```bash
-   bun drizzle-kit push
-   ```
+```bash
+# 1. Start the service
+docker compose up -d --build
 
-4. Generate Private Key:
-    ```bash
-    bun run generate_key
-    ```
+# 2. Key generation is handled automatically inside the container
+# The service runs on http://localhost:13500
+```
 
-5. Run Server:
-   ```bash
-   bun run src/index.ts
-   ```
+## 🛠️ Shell Script Integration
 
-4. Development Mode:
-   ```bash
-   bun run --watch src/index.ts
-   ```
+We provide two reference scripts for zero-knowledge integration:
 
-## API Endpoints
+### [blind_send.sh](file:///home/screamsh0ck/__projects/eva_tools/otp_sender/blind_send.sh)
+Triggers the "Blind Pipe" to generate and send an OTP to the user's email without the agent seeing the code.
 
-### Generate OTP
-- **URL**: `POST /api/otp/generate`
-- **Response**: `{ "success": true, "otp": "AB12CD" }`
+### [validate_otp.sh](file:///home/screamsh0ck/__projects/eva_tools/otp_sender/validate_otp.sh)
+Used by the agent to verify the code provided by the user. If validation fails, it triggers a security alert email.
 
-### Validate OTP
-- **URL**: `POST /api/otp/validate`
-- **Body**: `{ "code": "AB12CD" }`
-- **Response**: `{ "success": 1, "message": "..." }`
+## 📡 API Endpoints
+
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/otp/generate` | `POST` | Generates a new OTP and returns it. |
+| `/api/otp/validate` | `POST` | Validates a code: `{"code": "..."}`. Returns `{"success": 1}` if valid. |
+
+---
+*For detailed architecture and security implementation, see [DEVELOPMENT.md](file:///home/screamsh0ck/__projects/eva_tools/otp_sender/DEVELOPMENT.md).*
