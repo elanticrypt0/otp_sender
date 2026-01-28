@@ -41,3 +41,30 @@ bun drizzle-kit push
 ```bash
 bun drizzle-kit studio
 ```
+
+## Running with Docker
+
+You can run the service using Docker and Docker Compose. This will automatically handle dependencies and environment setup.
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Commands
+
+**Build and Start:**
+```bash
+docker compose up -d --build
+```
+
+**Check Logs:**
+```bash
+docker compose logs -f
+```
+
+**Stop Service:**
+```bash
+docker compose down
+```
+
+The service will be available at `http://localhost:13500`. The `sqlite.db` file and `src/config/private.key.ts` are persisted via volumes.

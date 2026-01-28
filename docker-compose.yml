@@ -1,0 +1,12 @@
+services:
+  otp-sender:
+    build: .
+    container_name: otp-sender
+    ports:
+      - "13500:13500"
+    volumes:
+      - ./sqlite.db:/app/sqlite.db
+      - ./src/config/private.key.ts:/app/src/config/private.key.ts
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
